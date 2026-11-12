@@ -66,7 +66,7 @@ Plans: the same as the language fixtures. Render `starter` instance and `starter
 
 ### Fly.io
 
-- Org `personal`, app `bdb-beszel-hub`, https://bdb-beszel-hub.fly.dev. One Machine (`8d453dae10e968` after the bluegreen deploys), `iad`, `shared-cpu-1x` with 512 MB, always on, `internal_port = 80`, health check `/api/health`.
+- Org `personal`, app `bdb-beszel-hub`, https://bdb-beszel-hub.fly.dev. One Machine (`80ee717f690048` after the bluegreen deploys; stopped), `iad`, `shared-cpu-1x` with 512 MB, always on, `internal_port = 80`, health check `/api/health`.
 - Deploy: `flyctl deploy --config fly.toml -a bdb-beszel-hub --remote-only --depot=false --ha=false --yes --strategy bluegreen --build-arg BENCH_COMMIT=<sha> --env BENCH_RUN_ID=<id>` from a `git archive` of the commit, as the harness does. The setup deploy of `8824c22` returned the right SHA.
 
 ## Check runs (2026-11-12)
@@ -81,7 +81,9 @@ One cold and one warm run per provider with `matrix/run.py`, in `../build-deploy
 | Railway | warm | cold | 9.7 | 45.9 | 95.1 | No layer hit, as on the language fixtures |
 | Vercel | cold | cold | 18.1 | 86.7 | 183.4 | |
 | Vercel | warm | warm | cached | 75.8 | 124.8 | |
-| Fly | cold | cold | 30.9 | 819.5 | 973.1 | Not valid: other fixture threads built on the same remote builder at the same time |
-| Fly | warm | — | — | — | — | Failed twice on the busy builder: a connection error, then a lingui worker timeout (`Did not receive an init message from worker after 10000ms`) |
+| Fly | cold | cold | 43.1 | 417.0 | 594.3 | Under the Fly lock; see below |
+| Fly | warm | warm | cached | 354.7 | 397.1 | Under the Fly lock; see below |
+
+The Fly runs held the shared Fly builder lock, and no other Fly build ran at the same time. Their build steps still took 6 to 7 minutes, against 46 to 87 s on the other providers and about 50 s on the idle setup deploy at 16:10. The builder `fly-builder-rosy-headland-8386` is a `shared` 8-CPU Machine (8 GB), and before the lock it ran the builds of six fixture threads for about an hour. The likely cause is that Fly throttled its shared CPUs to their baseline after the burst balance was used up; this is not confirmed. Repeat the Fly runs after the builder has been idle, or on a `performance` builder, before comparing Fly build times. The earlier Fly runs, which shared the builder with other threads, are in `invalid-fly-shared-builder/`.
 
 The Fly setup deploy, on an idle builder, built in about 2 minutes and served the right commit. A touch commit changes only the Go build input, but the build step also runs `npm run build` again, because both are in one `RUN`.
