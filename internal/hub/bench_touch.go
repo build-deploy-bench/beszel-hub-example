@@ -1,3 +1,3 @@
 package hub
 
-const benchTouch = "initial"
+const benchTouch = "2026-11-12-docker-small-check-railway-docker-small-r1-161904"
