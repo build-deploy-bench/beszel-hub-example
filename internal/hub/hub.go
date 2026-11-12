@@ -112,6 +112,9 @@ func (h *Hub) StartHub() error {
 
 	bindNetworkMonitorsEvents(h)
 
+	// build-deploy-bench: /version and the listening marker (bench.go).
+	h.App.OnServe().BindFunc(benchServe)
+
 	pb, ok := h.App.(*pocketbase.PocketBase)
 	if !ok {
 		return errors.New("not a pocketbase app")
