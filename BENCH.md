@@ -66,5 +66,22 @@ Plans: the same as the language fixtures. Render `starter` instance and `starter
 
 ### Fly.io
 
-- Org `personal`, app `bdb-beszel-hub`, https://bdb-beszel-hub.fly.dev. One Machine, `iad`, `shared-cpu-1x` with 512 MB, always on, `internal_port = 80`, health check `/api/health`.
+- Org `personal`, app `bdb-beszel-hub`, https://bdb-beszel-hub.fly.dev. One Machine (`8d453dae10e968` after the bluegreen deploys), `iad`, `shared-cpu-1x` with 512 MB, always on, `internal_port = 80`, health check `/api/health`.
 - Deploy: `flyctl deploy --config fly.toml -a bdb-beszel-hub --remote-only --depot=false --ha=false --yes --strategy bluegreen --build-arg BENCH_COMMIT=<sha> --env BENCH_RUN_ID=<id>` from a `git archive` of the commit, as the harness does. The setup deploy of `8824c22` returned the right SHA.
+
+## Check runs (2026-11-12)
+
+One cold and one warm run per provider with `matrix/run.py`, in `../build-deploy-bench-runs/2026-11-12-docker-small-check/`. They check the setup and the parsers; they are not benchmark results. Every run that finished has all partition spans.
+
+| Provider | Run | Cache seen | install | build | e2e (s) | Note |
+|---|---|---|---:|---:|---:|---|
+| Render | cold | cold | 8.6 | 69.7 | 153.4 | `release` 36.9 s, of which `cache_export` 35.4 s |
+| Render | warm | warm | cached | 71.5 | 118.1 | `cache_export` 14.3 s |
+| Railway | cold | cold | 11.3 | 55.6 | 98.6 | |
+| Railway | warm | cold | 9.7 | 45.9 | 95.1 | No layer hit, as on the language fixtures |
+| Vercel | cold | cold | 18.1 | 86.7 | 183.4 | |
+| Vercel | warm | warm | cached | 75.8 | 124.8 | |
+| Fly | cold | cold | 30.9 | 819.5 | 973.1 | Not valid: other fixture threads built on the same remote builder at the same time |
+| Fly | warm | — | — | — | — | Failed twice on the busy builder: a connection error, then a lingui worker timeout (`Did not receive an init message from worker after 10000ms`) |
+
+The Fly setup deploy, on an idle builder, built in about 2 minutes and served the right commit. A touch commit changes only the Go build input, but the build step also runs `npm run build` again, because both are in one `RUN`.
