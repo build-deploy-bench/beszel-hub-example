@@ -20,9 +20,13 @@ COPY internal/site/package.json internal/site/package-lock.json internal/site/
 COPY bench/build.sh bench/build.sh
 RUN sh ./bench/build.sh install
 
-# The image has no .git, so the commit SHA for /version comes from a build arg. Vercel passes
-# VERCEL_GIT_COMMIT_SHA; the harness passes BENCH_COMMIT to Fly.
+# The image has no .git, so the commit SHA for /version comes from a build arg. Render and Railway pass their
+# variables as build args, Vercel passes VERCEL_GIT_COMMIT_SHA (Git deploys only), and the harness passes
+# BENCH_COMMIT to Fly. A RUN step sees a build arg only after its ARG line. The ARGs come after the install step,
+# so a new commit does not invalidate the install layer.
 ARG BENCH_COMMIT=""
+ARG RENDER_GIT_COMMIT=""
+ARG RAILWAY_GIT_COMMIT_SHA=""
 ARG VERCEL_GIT_COMMIT_SHA=""
 COPY . ./
 RUN sh ./bench/build.sh build
