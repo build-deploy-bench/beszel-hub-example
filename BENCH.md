@@ -44,7 +44,7 @@ All four providers build the root `Dockerfile`. It is upstream's `internal/docke
 
 ## Providers
 
-Plans: the same as the language fixtures. Render `starter` instance and `starter` build pipeline, Fly `shared-cpu-1x` with 512 MB, Railway and Vercel on their paid plans.
+Plans: the same as the language fixtures. Render `starter` instance and `starter` build pipeline, Fly `shared-cpu-1x` with 1 GB (the `fly launch` default), Railway and Vercel on their paid plans.
 
 ### Render
 
@@ -61,12 +61,12 @@ Plans: the same as the language fixtures. Render `starter` instance and `starter
 ### Vercel
 
 - Team `build-deploy-bench`, project `bdb-beszel-hub` `prj_0BETuk4fmyFRWab05untEI16vPlH`, https://bdb-beszel-hub.vercel.app. No Git link; deploys upload a `git archive` of the commit with `vercel deploy --prod`.
-- Container Runtime through `vercel.json` `"framework": "container"`, which builds the root `Dockerfile` (no `Dockerfile.vercel`). Function region `iad1`. Build machine: the project default (`standard`, elastic), the same as the Go and Node projects.
+- Container Runtime through `vercel.json` `"framework": "container"`, which builds the root `Dockerfile` (no `Dockerfile.vercel`). Function region `iad1`. Build machine `standard`, selection `fixed`, the same as the other projects.
 - Setup deploy `dpl_Hm8PxCQFA1GZjbHuC4VCsbHvUxNk` of `8824c22`: health 200 and `/version` returns `run`. `commit` is `unknown`, as for every CLI upload. The build log shows `[1/3] STEP …` for the three stages; the root file system of the scratch image is writable, so PocketBase starts.
 
 ### Fly.io
 
-- Org `personal`, app `bdb-beszel-hub`, https://bdb-beszel-hub.fly.dev. One Machine (`80ee717f690048` after the bluegreen deploys; stopped), `iad`, `shared-cpu-1x` with 512 MB, always on, `internal_port = 80`, health check `/api/health`.
+- Org `personal`, app `bdb-beszel-hub`, https://bdb-beszel-hub.fly.dev. One Machine (`80ee717f690048` after the bluegreen deploys; stopped), `iad`, `shared-cpu-1x` with 1 GB (the `fly launch` default), always on, `internal_port = 80`, health check `/api/health`.
 - Deploy: `flyctl deploy --config fly.toml -a bdb-beszel-hub --remote-only --depot=false --ha=false --yes --strategy bluegreen --build-arg BENCH_COMMIT=<sha> --env BENCH_RUN_ID=<id>` from a `git archive` of the commit, as the harness does. The setup deploy of `8824c22` returned the right SHA.
 
 ## Check runs (2026-11-12)
