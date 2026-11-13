@@ -1,3 +1,3 @@
 package hub
 
-const benchTouch = "2026-11-12-full-railway-docker-small-r3-010036"
+const benchTouch = "2026-11-12-full-render-docker-small-r1-011834"
