@@ -1,3 +1,3 @@
 package hub
 
-const benchTouch = "2026-11-13-gh4-vercel-docker-small-r3-222033"
+const benchTouch = "2026-11-13-gh4-render-docker-small-r1-224819"
