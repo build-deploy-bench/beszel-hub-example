@@ -1,3 +1,6 @@
+> [!WARNING]
+> **Benchmark fixture: do not use.** This repository is a copy of [henrygd/beszel](https://github.com/henrygd/beszel). We use it only as a test workload to measure build and deploy times on hosting platforms. It has benchmark patches (see [`BENCH.md`](BENCH.md)), gets no upstream fixes, and is not maintained. To use or contribute to the project, go to [henrygd/beszel](https://github.com/henrygd/beszel).
+
 # Beszel
 
 Beszel is a lightweight server monitoring platform that includes Docker statistics, historical data, and alert functions.

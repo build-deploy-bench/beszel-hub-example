@@ -27,6 +27,9 @@ func main() {
 		return
 	}
 
+	// build-deploy-bench: start marker and listen on $PORT (internal/hub/bench.go).
+	os.Args = hub.BenchArgs(os.Args)
+
 	baseApp := getBaseApp()
 	hub := hub.NewHub(baseApp)
 	if err := hub.StartHub(); err != nil {
